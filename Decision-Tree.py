@@ -1,4 +1,5 @@
 import numpy as np
+from collections import defaultdict
 from collections import Counter
 
 class Node:
@@ -80,6 +81,24 @@ class DecisionTree:
         if x[node.feature] < node.threshold:
             return self._traverse_tree(x, node.left)
         return self._traverse_tree(x, node.right)
+    
+    
+if __name__ == "__main__":
+    from sklearn.datasets import load_diabetes
+    from sklearn.model_selection import train_test_split
+    
+    data = load_diabetes()
+    X, y = data.data, data.target
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
+    
+    tree = DecisionTree(max_depth = 3) 
+    tree.fit(X_train,y_train)
+    prediction = tree.prediction(X_test)
+    
+    print (prediction)
+    accuracy = np.mean(prediction == y_test)
+    print(F"Accuracy: {accuracy:.2f}")
+    
     
     
     
