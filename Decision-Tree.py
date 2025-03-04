@@ -26,6 +26,7 @@ class DecisionTree:
         num_samples, num_features = X.shape
         unique_labels = np.unique(y)
         
+        #Pre pruning
         if len(unique_labels) == 1 or (self.max_depth is not None and depth >= self.max_depth):
             return Node(value = Counter(y).most_common(1)[0][0])
         
@@ -58,7 +59,7 @@ class DecisionTree:
         return best_feature, best_threshold
     
     
-    def _information_gain(self, y, X_column, threashold):
+    def _information_gain(self, y, X_column, threashold):   
         parent_entropy = self._entropy(y)
         left_y, right_y = y[X_column < threashold], y[X_column >= threashold]
         n,n_left, n_right = len(y), len(left_y), len(right_y)
@@ -66,11 +67,16 @@ class DecisionTree:
             return 0
         child_entropy = (n_left / n) * self._entropy(left_y) + (n_right / n) * self._entropy(right_y)
         return parent_entropy - child_entropy
+        
     
     def _entropy(self, y):
         counts = np.bincount(y)
         probabilities = counts / np.sum(counts)
         return -np.sum([p*np.log2(p) for p in probabilities if p > 0])
+    
+    def _variance(self, y):
+        return np.var(y)
+        
     
     def prediction(self, X):
         return np.array([self._traverse_tree(x, self.root) for x in X])
