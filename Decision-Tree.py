@@ -90,9 +90,33 @@ class DecisionTree:
     
     
 if __name__ == "__main__":
-    from sklearn.datasets import load_diabetes
+    from sklearn.datasets import load_wine
     from sklearn.model_selection import train_test_split
+    from sklearn import tree #this will be the sklearn decision tree
+    #from matplotlib.pyplot import plt
     
+    '''
+    Will begin with the sklearn decsision tree first
+    '''
+    wine = load_wine()
+
+    X, y = wine.data, wine.target
+    
+    
+    clf = tree.DecisionTreeClassifier()
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
+    
+    clf = clf.fit(X_train, y_train)#fits the model iwth the data
+    predict = clf.predict(X_test)
+    print(predict)
+    accuracy = np.mean(predict == y_test)
+    print(F"Accuracy: {accuracy:.2f}")
+    
+    
+    #tree.plot_tree(clf)
+    
+    '''
     data = load_diabetes()
     X, y = data.data, data.target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
@@ -104,6 +128,7 @@ if __name__ == "__main__":
     print (prediction)
     accuracy = np.mean(prediction == y_test)
     print(F"Accuracy: {accuracy:.2f}")
+    '''
     
     
     
