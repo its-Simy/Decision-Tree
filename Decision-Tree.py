@@ -90,6 +90,7 @@ if __name__ == "__main__":
     from sklearn.datasets import load_wine
     from sklearn.model_selection import train_test_split
     from sklearn import tree #this will be the sklearn decision tree
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
     
     '''
     Will begin with the sklearn decsision tree first
@@ -105,7 +106,10 @@ if __name__ == "__main__":
     predict = clf.predict(X_test)
     print(predict)
     accuracy1 = np.mean(predict == y_test)#find the accuracy of the classification predictions
-    print(F"Accuracy: {accuracy1:.2f}")
+    print(f"Accuracy: {accuracy_score(y_test, predict):.2f}")
+    print(f"Precision: {precision_score(y_test, predict, average='weighted'):.2f}")
+    print(f"Recall: {recall_score(y_test, predict, average='weighted'):.2f}")
+    print(f"F1-score: {f1_score(y_test, predict, average='weighted'):.2f}\n")
     
     
     '''
@@ -116,11 +120,14 @@ if __name__ == "__main__":
     tree.fit(X_train,y_train)
     prediction = tree.prediction(X_test)
     
-    print("The following is the OOP implementation of the Decision tree")
+    print("The following is the OOP implementation of the Decision tree \n")
     
     print (prediction)
-    accuracy2 = np.mean(prediction == y_test)
-    print(F"Accuracy: {accuracy2:.2f}")
+    print("\nCustom Decision Tree Metrics:")
+    print(f"Accuracy: {accuracy_score(y_test, prediction):.2f}")
+    print(f"Precision: {precision_score(y_test, prediction, average='weighted'):.2f}")
+    print(f"Recall: {recall_score(y_test, prediction, average='weighted'):.2f}")
+    print(f"F1-score: {f1_score(y_test, prediction, average='weighted'):.2f}")
     
     
     
