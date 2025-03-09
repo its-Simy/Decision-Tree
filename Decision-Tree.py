@@ -40,7 +40,7 @@ class DecisionTree:
         left_child = self._grow_tree(X[left_index],y[left_index],depth+1)
         right_child = self._grow_tree(X[right_index],y[right_index], depth+1)        
         
-        return Node(feature = best_feature, threashod = best_threshold, left = left_child, right = right_child)
+        return Node(feature = best_feature, threshold = best_threshold, left = left_child, right = right_child)
     
     def _best_split(self,X, y, num_features):
         
@@ -73,9 +73,6 @@ class DecisionTree:
         counts = np.bincount(y)
         probabilities = counts / np.sum(counts)
         return -np.sum([p*np.log2(p) for p in probabilities if p > 0])
-    
-    def _variance(self, y):
-        return np.var(y)
         
     
     def prediction(self, X):
@@ -93,42 +90,38 @@ if __name__ == "__main__":
     from sklearn.datasets import load_wine
     from sklearn.model_selection import train_test_split
     from sklearn import tree #this will be the sklearn decision tree
-    #from matplotlib.pyplot import plt
     
     '''
     Will begin with the sklearn decsision tree first
     '''
-    wine = load_wine()
-
-    X, y = wine.data, wine.target
-    
-    
-    clf = tree.DecisionTreeClassifier()
-    
+    wine = load_wine()#loads all the data into wine
+    X, y = wine.data, wine.target#seperate
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
     
+    print("The following is the sklearn library implementation of the Decision tree")
+    
+    clf = tree.DecisionTreeClassifier()
     clf = clf.fit(X_train, y_train)#fits the model iwth the data
     predict = clf.predict(X_test)
     print(predict)
-    accuracy = np.mean(predict == y_test)
-    print(F"Accuracy: {accuracy:.2f}")
+    accuracy1 = np.mean(predict == y_test)#find the accuracy of the classification predictions
+    print(F"Accuracy: {accuracy1:.2f}")
     
-    
-    #tree.plot_tree(clf)
     
     '''
-    data = load_diabetes()
-    X, y = data.data, data.target
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
+    This is the OOP version of the Decision Tree implementation
+    '''
     
     tree = DecisionTree(max_depth = 3) 
     tree.fit(X_train,y_train)
     prediction = tree.prediction(X_test)
     
+    print("The following is the OOP implementation of the Decision tree")
+    
     print (prediction)
-    accuracy = np.mean(prediction == y_test)
-    print(F"Accuracy: {accuracy:.2f}")
-    '''
+    accuracy2 = np.mean(prediction == y_test)
+    print(F"Accuracy: {accuracy2:.2f}")
+    
     
     
     
