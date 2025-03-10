@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 from collections import Counter
+import pandas as pd
 
 class Node:
     def __init__(self, feature = None, threshold = None, left = None, right = None, *, value = None):
@@ -91,6 +92,9 @@ if __name__ == "__main__":
     from sklearn.model_selection import train_test_split
     from sklearn import tree #this will be the sklearn decision tree
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+    from sklearn.tree import plot_tree
+    import matplotlib.pyplot as plt
+    
     
     '''
     Will begin with the sklearn decsision tree first
@@ -105,17 +109,62 @@ if __name__ == "__main__":
     clf = clf.fit(X_train, y_train)#fits the model iwth the data
     predict = clf.predict(X_test)
     print(predict)
-    accuracy1 = np.mean(predict == y_test)#find the accuracy of the classification predictions
     print(f"Accuracy: {accuracy_score(y_test, predict):.2f}")
     print(f"Precision: {precision_score(y_test, predict, average='weighted'):.2f}")
     print(f"Recall: {recall_score(y_test, predict, average='weighted'):.2f}")
     print(f"F1-score: {f1_score(y_test, predict, average='weighted'):.2f}\n")
     
+    '''
+    plt.figure(figsize=(15, 10))
+    plot_tree(clf, filled=True)
+    plt.title("Sklearn Decision Tree before pruning")
+    plt.show()
+    '''
+    
+    pruned_tree = tree.DecisionTreeClassifier(max_depth=5,min_samples_split=10, min_samples_leaf=5)#Does Pre-Pruning by limiting the amount of depth of the tree by limiting the tree before training
+    pruned_tree = pruned_tree.fit(X_train, y_train)
+    path = pruned_tree.cost_complexity_pruning_path(X_train, y_train)
+    ccp_alphas, impurities = path.ccp_alphas, path.impurities
+    
+    # Train a series of decision trees with different alpha values
+    pruned_models = []
+    for ccp_alpha in ccp_alphas:
+        print(ccp_alphas)
+        pruned_model = tree.DecisionTreeClassifier(criterion="entropy", ccp_alpha=ccp_alpha)
+        pruned_model.fit(X_train, y_train)
+        pruned_models.append(pruned_model)
+
+    # Find the model with the best accuracy on test data
+    best_accuracy = 0
+    best_pruned_model = None
+    for pruned_model in pruned_models:
+        accuracy = pruned_model.score(X_test, y_test)
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_pruned_model = pruned_model
+    
+    
+    predict2 = best_pruned_model.predict(X_test)
+    print(predict2)
+    
+    
+    # Model Accuracy after pruning
+    accuracy_after_pruning = best_pruned_model.score(X_test, y_test)
+    print(f"Accuracy: {accuracy_score(y_test, predict2):.2f}")
+    print(f"Precision: {precision_score(y_test, predict2, average='weighted'):.2f}")
+    print(f"Recall: {recall_score(y_test, predict2, average='weighted'):.2f}")
+    print(f"F1-score: {f1_score(y_test, predict2, average='weighted'):.2f}\n")
+    
+    
+    print(f"Depth of unpruned tree: {clf.get_depth()}")
+    print(f"Depth of best pruned tree: {best_pruned_model.get_depth()}")
+       
     
     '''
     This is the OOP version of the Decision Tree implementation
     '''
     
+    '''
     tree = DecisionTree(max_depth = 3) 
     tree.fit(X_train,y_train)
     prediction = tree.prediction(X_test)
@@ -128,7 +177,7 @@ if __name__ == "__main__":
     print(f"Precision: {precision_score(y_test, prediction, average='weighted'):.2f}")
     print(f"Recall: {recall_score(y_test, prediction, average='weighted'):.2f}")
     print(f"F1-score: {f1_score(y_test, prediction, average='weighted'):.2f}")
-    
+    '''
     
     
     
