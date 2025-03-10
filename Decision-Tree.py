@@ -74,6 +74,44 @@ class DecisionTree:
         counts = np.bincount(y)
         probabilities = counts / np.sum(counts)
         return -np.sum([p*np.log2(p) for p in probabilities if p > 0])
+    
+    def post_prune(self, node, X_val, y_val):
+        self.prune_node(self.root, X_val, y_val)
+        
+    def prune_node(self, node, X_val, y_val):
+        if node is None or node.is_leaf():
+            return
+        
+        # Recursively prune left and right subtrees
+        self.prune_node(node.left, X_val, y_val)
+        self.prune_node(node.right, X_val, y_val)
+
+        # If both children are leaves, consider pruning
+        if node.left.is_leaf() and node.right.is_leaf():
+            left_leaf_value = node.left.value
+            right_leaf_value = node.right.value
+
+            # Majority class if we prune
+            majority_class = Counter(y_val).most_common(1)[0][0]
+
+            # Evaluate accuracy before pruning
+            y_pred_before = self.predict(X_val)
+            accuracy_before = np.mean(y_pred_before == y_val)
+
+            # Temporarily prune the node
+            node.value = majority_class
+            node.left = None
+            node.right = None
+
+            # Evaluate accuracy after pruning
+            y_pred_after = self.predict(X_val)
+            accuracy_after = np.mean(y_pred_after == y_val)
+
+            # Keep the pruning only if it does not reduce accuracy
+            if accuracy_after < accuracy_before:
+                node.value = None
+                node.left = Node(value=left_leaf_value)
+                node.right = Node(value=right_leaf_value)
         
     
     def prediction(self, X):
@@ -92,8 +130,6 @@ if __name__ == "__main__":
     from sklearn.model_selection import train_test_split
     from sklearn import tree #this will be the sklearn decision tree
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-    from sklearn.tree import plot_tree
-    import matplotlib.pyplot as plt
     
     
     '''
@@ -108,18 +144,12 @@ if __name__ == "__main__":
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(X_train, y_train)#fits the model iwth the data
     predict = clf.predict(X_test)
+    print("The following is the version with no pruning")
     print(predict)
     print(f"Accuracy: {accuracy_score(y_test, predict):.2f}")
     print(f"Precision: {precision_score(y_test, predict, average='weighted'):.2f}")
     print(f"Recall: {recall_score(y_test, predict, average='weighted'):.2f}")
     print(f"F1-score: {f1_score(y_test, predict, average='weighted'):.2f}\n")
-    
-    '''
-    plt.figure(figsize=(15, 10))
-    plot_tree(clf, filled=True)
-    plt.title("Sklearn Decision Tree before pruning")
-    plt.show()
-    '''
     
     pruned_tree = tree.DecisionTreeClassifier(max_depth=5,min_samples_split=10, min_samples_leaf=5)#Does Pre-Pruning by limiting the amount of depth of the tree by limiting the tree before training
     pruned_tree = pruned_tree.fit(X_train, y_train)
@@ -129,7 +159,6 @@ if __name__ == "__main__":
     # Train a series of decision trees with different alpha values
     pruned_models = []
     for ccp_alpha in ccp_alphas:
-        print(ccp_alphas)
         pruned_model = tree.DecisionTreeClassifier(criterion="entropy", ccp_alpha=ccp_alpha)
         pruned_model.fit(X_train, y_train)
         pruned_models.append(pruned_model)
@@ -145,6 +174,7 @@ if __name__ == "__main__":
     
     
     predict2 = best_pruned_model.predict(X_test)
+    print("The following is the version with pre and post pruning")
     print(predict2)
     
     
@@ -157,32 +187,27 @@ if __name__ == "__main__":
     
     
     print(f"Depth of unpruned tree: {clf.get_depth()}")
-    print(f"Depth of best pruned tree: {best_pruned_model.get_depth()}")
+    print(f"Depth of best pruned tree: {best_pruned_model.get_depth()}\n")
        
     
     '''
     This is the OOP version of the Decision Tree implementation
     '''
     
-    '''
+    
     tree = DecisionTree(max_depth = 3) 
     tree.fit(X_train,y_train)
     prediction = tree.prediction(X_test)
     
-    print("The following is the OOP implementation of the Decision tree \n")
+    print("The following is the OOP implementation of the Decision tree with only pre pruning \n")
     
     print (prediction)
     print("\nCustom Decision Tree Metrics:")
     print(f"Accuracy: {accuracy_score(y_test, prediction):.2f}")
     print(f"Precision: {precision_score(y_test, prediction, average='weighted'):.2f}")
     print(f"Recall: {recall_score(y_test, prediction, average='weighted'):.2f}")
-    print(f"F1-score: {f1_score(y_test, prediction, average='weighted'):.2f}")
-    '''
+    print(f"F1-score: {f1_score(y_test, prediction, average='weighted'):.2f} \n")
     
+    print("The following is the OOP version of the Decision Tree with pre and post pruning")
     
-    
-    
-    
-    
-    
-        
+          
