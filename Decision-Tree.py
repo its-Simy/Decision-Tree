@@ -95,7 +95,7 @@ class DecisionTree:
             majority_class = Counter(y_val).most_common(1)[0][0]
 
             # Evaluate accuracy before pruning
-            y_pred_before = self.predict(X_val)
+            y_pred_before = self.prediction(X_val)
             accuracy_before = np.mean(y_pred_before == y_val)
 
             # Temporarily prune the node
@@ -104,7 +104,7 @@ class DecisionTree:
             node.right = None
 
             # Evaluate accuracy after pruning
-            y_pred_after = self.predict(X_val)
+            y_pred_after = self.prediction(X_val)
             accuracy_after = np.mean(y_pred_after == y_val)
 
             # Keep the pruning only if it does not reduce accuracy
@@ -202,12 +202,31 @@ if __name__ == "__main__":
     print("The following is the OOP implementation of the Decision tree with only pre pruning \n")
     
     print (prediction)
-    print("\nCustom Decision Tree Metrics:")
+    print("\nCustom Decision Tree Metrics with no pruning:")
     print(f"Accuracy: {accuracy_score(y_test, prediction):.2f}")
     print(f"Precision: {precision_score(y_test, prediction, average='weighted'):.2f}")
     print(f"Recall: {recall_score(y_test, prediction, average='weighted'):.2f}")
     print(f"F1-score: {f1_score(y_test, prediction, average='weighted'):.2f} \n")
     
     print("The following is the OOP version of the Decision Tree with pre and post pruning")
+    
+    #seperates the data into 60% training data, 20% validation data for pruning and 20% for testing
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42) 
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+    
+    tree.post_prune(tree.root,X_val,y_val)
+    prediction2 = tree.prediction(X_test)
+    
+    
+    print (prediction2)
+    print("\nCustom Decision Tree Metrics with pruning:")
+    print(f"Accuracy: {accuracy_score(y_test, prediction2):.2f}")
+    print(f"Precision: {precision_score(y_test, prediction2, average='weighted'):.2f}")
+    print(f"Recall: {recall_score(y_test, prediction2, average='weighted'):.2f}")
+    print(f"F1-score: {f1_score(y_test, prediction2, average='weighted'):.2f} \n")
+    
+    
+    
     
           
